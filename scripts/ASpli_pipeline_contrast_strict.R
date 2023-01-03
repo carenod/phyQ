@@ -99,6 +99,3 @@ ASpli_pipeline_contrast_strict <- function(targets, minReadLength, libType, cont
                 signals = signals(is)))
 }
 
-geneX <- genesDE(signals_SRPnew_WTvsphyQ_Dark[["gbDUreport"]])
-fwrite(geneX, "DEG_light_vs_dark_WT.txt", dec = ",", sep = "\t")
-

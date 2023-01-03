@@ -1,3 +1,6 @@
+#limpio la memoria
+rm( list=ls() )  #remove all objects
+gc()             #garbage collection
 Sys.setenv(http_proxy="172.16.254.254:3128")
 Sys.setenv(https_proxy="172.16.254.254:3128")
 library(ASpli)
@@ -11,26 +14,25 @@ ATxDb <- makeTxDbFromGFF("/data/BioData/Arabidopsis_thaliana/Ensembl/TAIR10/Anno
 features <- binGenome(ATxDb)
 saveDb(ATxDb,file="gene.sqlite")
 
-########### Photoperiod and light pulse #####
-##### SRPnew contrast WT vs phyQ Dark #####
-# New experiment, performed by Connie
-#	DC: A, B, C
-# LP: G, H, I
-
-bamFiles_SRPnew <- list.files(path = '/data4/projects/ASpliDB/Data/SRPnew/02_BAM', pattern = "out.bam$" ,
+# Search bam files
+bamFiles <- list.files(path = '/data4/projects/ASpliDB/Data/SRPnew/02_BAM', pattern = "out.bam$" ,
                               full.names = TRUE, recursive = TRUE)
 
-targets_SRPnew <- data.frame(bam = c(bamFiles_SRPnew[c(1:6)]),
-                             condition = c('WT','WT','WT',
-                                           'phyQ','phyQ','phyQ'),
-                             stringsAsFactors = FALSE)
+targets <- data.frame(bam = bamFiles,
+                      genotype = c('WT','WT','WT',
+                                   'phyQ','phyQ','phyQ'),
+                      light = rep(c('dark', 'red'), each = 6),
+                      stringsAsFactors = FALSE)
 
-MergebamFileNames_SRPnew <- list.files(path = '/data4/projects/ASpliDB/Data/SRPnew/03_mergedBAMs', pattern = ".bam$" ,
-                                       full.names = TRUE, recursive = TRUE)
+MergebamFileNames <- list.files(path = '/data4/projects/ASpliDB/Data/SRPnew/03_mergedBAMs', 
+                                pattern = ".bam$" ,
+                                full.names = TRUE, 
+                                recursive = TRUE)
 
 
-mBAMs_SRPnew <- data.frame(bam = c(MergebamFileNames_SRPnew[c(1,3)]), 
-                           condition = getConditions(targets_SRPnew))
+mBAMs <- data.frame(bam = MergebamFileNames[c(1,3,2,4)],
+                    condition = getConditions(targets))
+
 
 signals_SRPnew_WTvsphyQ_Dark <- ASpli_pipeline_contrast_strict(targets = targets_SRPnew, 
                                                           minReadLength = 150, 
