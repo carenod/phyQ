@@ -2,7 +2,7 @@
 # ASpli_pipeline function to execute gbcounts, asd, and return 
 # It has a strict filter for minBinReads
 ASpli_pipeline_contrast_strict <- function(targets, minReadLength, libType, contrast, 
-                           form, sra, features, mBAMs, strandMode) {
+                                           sra, features, mBAMs, strandMode) {
   
   print('Starting read counting')
   
