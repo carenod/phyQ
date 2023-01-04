@@ -11,9 +11,11 @@ setwd('/data4/projects/Metanalisis_light/Dani/phyQ/')
 source("./R_scripts/phyQ/scripts/ASpli_pipeline_contrast_strict.R")
 
 # Load genome annotation
-ATxDb <- makeTxDbFromGFF("/data/BioData/Arabidopsis_thaliana/Ensembl/TAIR10/Annotation/Archives/2019/TAIR10_GFF3_genes.gff")
+# ATxDb <- makeTxDbFromGFF("/data/BioData/Arabidopsis_thaliana/Ensembl/TAIR10/Annotation/Archives/2019/TAIR10_GFF3_genes.gff")
+# saveDb(ATxDb,file="gene.sqlite")
+ATxDb <- loadDb("gene.sqlite")
 features <- binGenome(ATxDb)
-saveDb(ATxDb,file="gene.sqlite")
+
 
 # Search bam files
 bamFiles <- list.files(path = '/data4/projects/ASpliDB/Data/SRPnew/02_BAM', pattern = "out.bam$" ,

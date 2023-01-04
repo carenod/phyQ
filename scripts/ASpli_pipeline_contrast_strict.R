@@ -1,9 +1,13 @@
 ##### ASpli pipeline ######
 # ASpli_pipeline function to execute gbcounts, asd, and return 
 # It has a strict filter for minBinReads
+
+require(ASpli)
+require(GenomicFeatures)
+
 ASpli_pipeline_contrast_strict <- function(targets, minReadLength, libType, contrast, 
                                            sra, features, mBAMs, strandMode) {
-  
+
   print('Starting read counting')
   
   gbcounts <- gbCounts(features = features, 
