@@ -31,7 +31,6 @@ ASpli_pipeline_contrast_strict <- function(targets, minReadLength, libType, cont
   # Differential gene expression and bin usage signal estimation
   gbDUreport <- gbDUreport(gbcounts, 
                            contrast = contrast, 
-                           formula = form, 
                            coef = coef,
                            minBinReads = 50)
   
@@ -45,7 +44,6 @@ ASpli_pipeline_contrast_strict <- function(targets, minReadLength, libType, cont
                          strongFilter = TRUE,
                          maxConditionsForDispersionEstimate = 24,
                          contrast = contrast,
-                         formula = form,
                          coef = coef,
                          maxFDRForParticipation = 0.05,
                          useSubset = FALSE)
