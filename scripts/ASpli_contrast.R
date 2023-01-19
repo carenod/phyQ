@@ -1,47 +1,31 @@
 ##### ASpli pipeline ######
-# ASpli_pipeline function to execute gbcounts, asd, and return 
-# It has a strict filter for minBinReads
+# ASpli_pipeline function to perform comparisons
 
 require(ASpli)
 require(GenomicFeatures)
 
-ASpli_pipeline_contrast_strict <- function(targets, minReadLength, libType, contrast, 
-                                           sra, features, mBAMs, strandMode) {
+ASpli_contrast <- function(contrast = NULL,
+                           coef = NULL,
+                           formula = NULL,
+                           sra = NULL, 
+                           features = NULL, 
+                           mBAMs = NULL, 
+                           gbcounts = NULL, 
+                           asd = NULL) {
 
-  print('Starting read counting')
-  
-  gbcounts <- gbCounts(features = features, 
-                       targets = targets,
-                       minReadLength = minReadLength, 
-                       maxISize = 50000,
-                       minAnchor = 10,
-                       libType = libType,
-                       strandMode = strandMode)    
-  
-  print('Calculating PSI, PIR and PJU')
-  
-  # Junction-based de-novo counting and splicing signal estimation:
-  #  asd (alternative splicing d?) counts junctions (jCounts function), which are reads overlapping bin borders 
-  #  (e.g. 1 bp in an exon and 99 in the following intron)
-  asd <- jCounts(counts = gbcounts, 
-                 features = features, 
-                 minReadLength = minReadLength, 
-                 libType= libType,
-                 threshold = 5,                 
-                 minAnchor = 10,
-                 strandMode = strandMode)
-  
   print('Doing gbDUreport')
   
   # Differential gene expression and bin usage signal estimation
-  gbDUreport <- gbDUreport(gbcounts, 
+  gbDUreport <- gbDUreport(counts = gbcounts, 
                            contrast = contrast, 
                            coef = coef,
+                           formula = formula,
                            minBinReads = 5)
   
   print('Doing jDUreport')
   # Differential junction usage analysis
-  jDUreport <- jDUreport(asd, minAvgCounts = 5,
+  jDUreport <- jDUreport(asd = asd, 
+                         minAvgCounts = 5,
                          filterWithContrasted = TRUE,
                          runUniformityTest = TRUE,
                          mergedBams = mBAMs,
@@ -50,9 +34,10 @@ ASpli_pipeline_contrast_strict <- function(targets, minReadLength, libType, cont
                          maxConditionsForDispersionEstimate = 24,
                          contrast = contrast,
                          coef = coef,
+                         formula = formula,
                          maxFDRForParticipation = 0.05,
                          useSubset = FALSE)
-
+  
   print('splicing report')
   # Bin and junction signal integration:
   sr <- splicingReport(gbDUreport, jDUreport, gbcounts) 
@@ -89,16 +74,16 @@ ASpli_pipeline_contrast_strict <- function(targets, minReadLength, libType, cont
   
   print('saving splicing report')
   writeSplicingReport(sr, output.dir = paste0("sr_", sra))
-
-
-    print(paste0(sra, ' analysis ended'))
-    
-    return(list(gbcounts = gbcounts, 
-                asd = asd, 
-                gbDUreport = gbDUreport, 
-                jDUreport = jDUreport, 
-                sr = sr, 
-                is = is,  
-                signals = signals(is)))
+  
+  
+  print(paste0(sra, ' analysis ended'))
+  
+  return(list(gbcounts = gbcounts, 
+              asd = asd, 
+              gbDUreport = gbDUreport, 
+              jDUreport = jDUreport, 
+              sr = sr, 
+              is = is,  
+              signals = signals(is)))
 }
 

@@ -12,11 +12,14 @@ require(stringr)
 require(made4)
 require(seqTools)
 
-setwd("/data4/projects/Metanalisis_light/ASpli_reports_STRICT_eline/SRP_new/")
+setwd('/data4/projects/Metanalisis_light/Dani/phyQ/')
+
+exp <- "WT_red"
 
 ##### Anchor based #####
-abr <- fread("./sr_SRP058008/anchorbased.txt")
-
+file_abr <- paste0("./sr/sr_", exp, "/anchorbased.txt")
+abr <- fread(file_abr)
+  
 colnames(abr)
 
 # para evitar que confunda un corte endonucleolitico con splicing
@@ -33,23 +36,25 @@ colnames(abr)
 abr <- abr[junction.fdr < 0.05 & abs(junction.dPIR) > 0.05, ]
 abr <- unique(abr)
 
-fwrite(abr, "./sr_SRP058008/anchorbased_filtered.txt", dec = ",", sep = "\t")
+fwrite(abr, "./sr/sr_WTred_phyQred/anchorbased_filtered.txt", dec = ",", sep = "\t")
 
 ##### Bin based #####
-bbr <- fread("./sr_SRP058008/binbased.txt")
-#colnames(bbr)
+file_bbr <- paste0("./sr/sr_", exp, "/binbased.txt")
+bbr <- fread(file_bbr)
+colnames(bbr)
 
 # Filtro para quedarme con significativas a nivel coverage y
 # dPIR/PSI
-bbr <- bbr[bin.fdr < 0.1 & cluster.fdr < 0.1 & abs(bin.logFC) > 0.58 & 
-             (abs(cluster.dPIR) > 0.05 | abs(cluster.dPSI) > 0.05),]
+bbr <- bbr[(bin.fdr < 0.1 | cluster.fdr < 0.1) & 
+           ((abs(bin.logFC) > 0.58) | (abs(cluster.dPIR) > 0.05 | abs(cluster.dPSI) > 0.05)),]
 
 fwrite(bbr, "./sr_SRP058008/binbased_filtered.txt", dec = ",", sep = "\t")
 
 ##### Locale based #####
-
-lbr <- fread("./sr_SRP058008/localebased.txt") # 1394 rows
-is <- fread("./SRP_new_contrastWT/is_SRPnew_WT/D-LP/D - LP.csv")
+file_lbr <- paste0("./sr/sr_", exp, "/localebased.txt")
+lbr <- fread("./sr/sr_WTred_phyQred/localebased.txt")
+file_is <- paste0("./is/is_", exp, "/is.csv")
+is <- fread(file_is)
 
 # arreglo nombre
 colnames(is) <- gsub(" ", "_", colnames(is))
@@ -163,3 +168,18 @@ gene_kmer[, AS := ifelse(AGI %in% genes_binary, 1, 0)]
 
 # guardo tabla final
 fwrite(gene_kmer, "from_binary.txt")
+
+
+##### prueba con local based #####
+
+comparaciones <- lbr[ , .N]
+lbr[ , fdr_check := p.adjust(bin.pvalue, 
+                          method = "BH", 
+                          n = comparaciones), ]
+lbr[ , diferencia := bin.fdr - fdr_check]
+
+comparaciones <- bbr[ , .N]
+bbr[ , fdr_check := p.adjust(bin.pvalue, 
+                             method = "BH", 
+                             n = comparaciones), ]
+bbr[ , diferencia := bin.fdr - fdr_check]
